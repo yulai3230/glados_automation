@@ -2,6 +2,7 @@ import requests,json,os
 # -------------------------------------------------------------------------------------------
 # github workflows
 # -------------------------------------------------------------------------------------------
+
 if __name__ == '__main__':
 # pushplus秘钥 申请地址 http://www.pushplus.plus
     sckey = os.environ.get("PUSHPLUS_TOKEN", "")
@@ -22,22 +23,30 @@ if __name__ == '__main__':
         'token': 'glados.one'
     }
     for cookie in cookies:
+  
         checkin = requests.post(url,headers={'cookie': cookie ,'referer': referer,'origin':origin,'user-agent':useragent,'content-type':'application/json;charset=UTF-8'},data=json.dumps(payload))
         state =  requests.get(url2,headers={'cookie': cookie ,'referer': referer,'origin':origin,'user-agent':useragent})
     #--------------------------------------------------------------------------------------------------------#  
-        time = state.json()['data']['leftDays']
-        time = time.split('.')[0]
-        email = state.json()['data']['email']
+        try:
+            time = state.json()['data']['leftDays']
+            time = time.split('.')[0]
+            email = state.json()['data']['email']
+
+            #获取用户信息
+            change=checkin.json()['list'][0]['change'].split('.')[0]
+            balance=checkin.json()['list'][0]['balance'].split('.')[0]
+        except:
+            requests.get('http://www.pushplus.plus/send?token=' + sckey + '&title=签到失败！！！'+'&content=出现异常')
+            print('出现异常')  # 日志输出
+            exit(0)
+
         if 'message' in checkin.text:
             mess = checkin.json()['message']
             print("签到成功") # 日志输出
-            # print(email+'----结果--'+mess+'----剩余('+time+')天')  # 日志输出
-            sendContent += email+'----'+mess+'----剩余('+time+')天\n'
+            sendContent =f'共计积分:\t\t{balance}\n今日积分:\t\t{change}\n剩余天数:\t\t{time}\n用户账号:\t\t{email}\n\nTip:\t\t{mess}\n'
         else:
-            requests.get('http://www.pushplus.plus/send?token=' + sckey + '&content='+email+'cookie已失效')
+            requests.get('http://www.pushplus.plus/send?token=' + sckey + '&title=签到失败！！！'+'&content='+email+'\ncookie已失效')
             print('cookie已失效')  # 日志输出
      #--------------------------------------------------------------------------------------------------------#   
     if sckey != "":
-         requests.get('http://www.pushplus.plus/send?token=' + sckey + '&title='+email+'签到成功'+'&content='+sendContent)
-
-
+         requests.get('http://www.pushplus.plus/send?token=' + sckey + '&title=Glados 自动签到'+'&content='+sendContent)
