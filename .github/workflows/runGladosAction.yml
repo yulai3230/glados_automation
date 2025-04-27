@@ -29,4 +29,4 @@ jobs:
         env: 
           GLADOS_COOKIE: "${{ secrets.GLADOS_COOKIE }}"
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
-      - uses: liskin/gh-workflow-keepalive@v1  
+      - uses: futuretech6/keepalive-workflow@master  
